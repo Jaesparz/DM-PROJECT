@@ -96,4 +96,52 @@ public class Grafo {
         Collections.reverse(camino); // Invertir el camino
         return camino;
     }
+
+    public List<List<String>> dijkstraConSegundoCamino(String origen, String destino) {
+        // Camino más corto
+        Map<String, Double> distancias = dijkstra(origen);
+        List<String> caminoMasCorto = reconstruirCamino(origen, destino);
+
+        // Almacenar el peso del camino más corto
+        double pesoMasCorto = distancias.get(destino);
+
+        // Intentar encontrar el segundo camino más corto
+        List<String> segundoCamino = null;
+        double pesoSegundoMasCorto = Double.MAX_VALUE;
+
+        for (int i = 0; i < caminoMasCorto.size() - 1; i++) {
+            // Eliminar temporalmente una arista del camino más corto
+            String nodoA = caminoMasCorto.get(i);
+            String nodoB = caminoMasCorto.get(i + 1);
+            double pesoAristaOriginal = adyacencias.get(nodoA).get(nodoB);
+
+            adyacencias.get(nodoA).remove(nodoB);
+            adyacencias.get(nodoB).remove(nodoA);
+
+            // Recalcular el camino más corto sin esa arista
+            Map<String, Double> distanciasTemp = dijkstra(origen);
+            double nuevoPeso = 0;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                nuevoPeso = distanciasTemp.getOrDefault(destino, Double.MAX_VALUE);
+            }
+
+            if (nuevoPeso > pesoMasCorto && nuevoPeso < pesoSegundoMasCorto) {
+                pesoSegundoMasCorto = nuevoPeso;
+                segundoCamino = reconstruirCamino(origen, destino);
+            }
+
+            // Restaurar la arista
+            adyacencias.get(nodoA).put(nodoB, pesoAristaOriginal);
+            adyacencias.get(nodoB).put(nodoA, pesoAristaOriginal);
+        }
+
+        // Retornar ambos caminos
+        List<List<String>> caminos = new ArrayList<>();
+        caminos.add(caminoMasCorto);
+        if (segundoCamino != null) {
+            caminos.add(segundoCamino);
+        }
+
+        return caminos;
+    }
 }

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selecciona el modo de transporte"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/optionWalking"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/apie"
+            android:contentDescription="Caminar"
+            android:padding="8dp" />
+
+        <ImageView
+            android:id="@+id/optionBus"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/abus"
+            android:contentDescription="Bus"
+            android:padding="8dp" />
+
+        <ImageView
+            android:id="@+id/optionCar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/acarro"
+            android:contentDescription="Carro"
+            android:padding="8dp" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,6 +1,9 @@
 package com.example.projectdm;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -17,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -53,6 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private MyLocationNewOverlay locationOverlay;
     private LugarTuristico puntoPartida;
     private LugarTuristico puntoDestino;
+    private boolean enVistaDeGrafo = false; // Estado para alternar vistas
+    private List<LugarTuristico> lugares; // Lugares existentes
+    private List<Polyline> aristasGrafo = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Configurar OSMDroid
         Configuration.getInstance().setUserAgentValue(getPackageName());
+
+        // Configurar el botón flotante
+        FloatingActionButton btnToggleGraphView = findViewById(R.id.btnToggleGraphView);
+        btnToggleGraphView.setOnClickListener(v -> alternarVistaDeGrafo());
+
 
         // Crear dinámicamente el MapView
         mapView = new MapView(this);
@@ -89,11 +101,21 @@ public class MainActivity extends AppCompatActivity {
         ScaleBarOverlay scaleBarOverlay = new ScaleBarOverlay(mapView);
         mapView.getOverlays().add(scaleBarOverlay);
 
-        // Lugares Turisticos
+        // Inicializar los lugares
+        lugares = generarLugares();
+
+        // Lugares Turisticos (vista normal)
 
         agregarMarcadores();
 
+        // Generar las aristas entre los nodos
+        generarAristas();
+
+
+
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -103,8 +125,71 @@ public class MainActivity extends AppCompatActivity {
             mapView.onDetach();
         }
     }
-    private void agregarMarcadores() {
-        List<LugarTuristico> lugares = Arrays.asList(
+
+
+
+
+    // Generar las aristas del grafo
+    private void generarAristas() {
+        aristasGrafo.clear(); // Limpiar aristas existentes
+
+        // Crear aristas entre nodos consecutivos
+        for (int i = 0; i < lugares.size() - 1; i++) {
+            LugarTuristico inicio = lugares.get(i);
+            LugarTuristico fin = lugares.get(i + 1);
+
+            // Crear una polilínea para la arista
+            Polyline polyline = new Polyline();
+            polyline.setPoints(Arrays.asList(inicio.getUbicacion(), fin.getUbicacion()));
+            polyline.getOutlinePaint().setColor(Color.GRAY); // Color de la arista
+            polyline.getOutlinePaint().setStrokeWidth(5f); // Grosor de la línea
+
+            aristasGrafo.add(polyline);
+        }
+    }
+
+    // Alternar entre la vista normal y la vista de grafo
+    private void alternarVistaDeGrafo() {
+        enVistaDeGrafo = !enVistaDeGrafo;
+        mapView.getOverlays().clear(); // Limpiar las superposiciones actuales
+
+        if (enVistaDeGrafo) {
+            mostrarGrafo(); // Mostrar nodos y aristas
+        } else {
+            agregarMarcadores(); // Volver a la vista normal
+        }
+
+        mapView.invalidate(); // Redibujar el mapa
+    }
+
+    // Mostrar nodos y aristas en la vista de grafo
+    // Mostrar nodos en la vista de grafo
+    private void mostrarGrafo() {
+        // Dibujar nodos
+        for (LugarTuristico lugar : lugares) {
+            Marker marker = new Marker(mapView);
+            marker.setPosition(lugar.getUbicacion());
+            marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_node, null), 50, 50)); // Tamaño ajustado
+            marker.setTitle(lugar.getNombre());
+            mapView.getOverlays().add(marker);
+        }
+
+        // Dibujar aristas
+        for (Polyline arista : aristasGrafo) {
+            mapView.getOverlays().add(arista);
+        }
+    }
+
+    // Método para redimensionar el ícono
+    private Drawable resizeIcon(Drawable icon, int width, int height) {
+        Bitmap bitmap = ((BitmapDrawable) icon).getBitmap();
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+        return new BitmapDrawable(getResources(), resizedBitmap);
+    }
+
+    private List<LugarTuristico> generarLugares() {
+        return Arrays.asList(
+
 
                 //MALLS
 
@@ -189,12 +274,17 @@ public class MainActivity extends AppCompatActivity {
 //                new LugarTuristico("Mall del Sol", new GeoPoint(-2.155259, -79.892787))
 
 
+
+
         );
+    }
+    private void agregarMarcadores() {
 
         for (LugarTuristico lugar : lugares) {
             Marker marker = new Marker(mapView);
             marker.setPosition(lugar.getUbicacion());
             marker.setTitle(lugar.getNombre());
+            marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_custom_marker, null), 60, 60)); // Ícono personalizado
             marker.setOnMarkerClickListener((m, map) -> {
                 mostrarOpciones(lugar);  // Llamar al método para seleccionar partida o destino
                 return true;  // Evitar el comportamiento predeterminado
@@ -294,13 +384,11 @@ public class MainActivity extends AppCompatActivity {
 
                 double distanciaKm1 = route1.getDouble("distance") / 1000;
 
-                // Mostrar la ruta más corta en el mapa
-                trazarRutaEnMapa(camino1, Color.BLUE);
+                // Mostrar la ruta más corta de forma animada
+                trazarRutaAnimada(camino1, Color.BLUE);
 
-                // Calcular el tiempo estimado para la ruta más corta
+                // Calcular el tiempo estimado
                 double tiempoRuta1 = calcularTiempo(distanciaKm1);
-
-                // Mostrar tiempo estimado en un cuadro de diálogo
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Ruta más corta")
                         .setMessage("Distancia: " + String.format("%.2f", distanciaKm1) + " km\n" +
@@ -308,11 +396,11 @@ public class MainActivity extends AppCompatActivity {
                         .setPositiveButton("Aceptar", null)
                         .show();
 
-                // Comprobar si hay una segunda ruta alternativa
+                // Mostrar ruta alternativa después de 10 segundos
                 if (routes.length() > 1) {
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         mostrarRutaAlternativa(jsonResponse, distanciaKm1, tiempoRuta1);
-                    }, 10000); // Esperar 10 segundos antes de mostrar la opción de ruta alternativa
+                    }, 10000);
                 } else {
                     Log.d("RUTA", "No se encontró una segunda ruta alternativa.");
                 }
@@ -325,33 +413,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     private void mostrarRutaAlternativa(String jsonResponse, double distanciaKm1, double tiempoRuta1) {
         try {
             JSONObject jsonObject = new JSONObject(jsonResponse);
             JSONArray routes = jsonObject.getJSONArray("routes");
 
             if (routes.length() > 1) { // Comprobar si hay una ruta alternativa disponible
-                // Obtener la segunda ruta (ruta alternativa)
                 JSONObject route2 = routes.getJSONObject(1);
                 String geometry2 = route2.getString("geometry");
                 List<GeoPoint> camino2 = GeoJsonParser.parseGeoJson(geometry2);
 
                 double distanciaKm2 = route2.getDouble("distance") / 1000;
-
-                // Calcular tiempo estimado para la ruta alternativa
                 double tiempoRuta2 = calcularTiempo(distanciaKm2);
-
-                // Calcular diferencia de tiempo entre las rutas
                 double diferenciaTiempo = tiempoRuta2 - tiempoRuta1;
 
-                // Mostrar un diálogo con los detalles de la ruta alternativa
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Ruta alternativa")
                         .setMessage("Distancia: " + String.format("%.2f", distanciaKm2) + " km\n" +
                                 "Tiempo estimado: " + (int) tiempoRuta2 + " minutos.\n" +
                                 "Esta ruta tomará aproximadamente " + (int) diferenciaTiempo + " minutos más.")
                         .setPositiveButton("Aceptar", (dialog, which) -> {
-                            trazarRutaEnMapa(camino2, Color.RED); // Mostrar la ruta alternativa en rojo
+                            trazarRutaAnimada(camino2, Color.RED); // Animar la ruta alternativa
                             Toast.makeText(this, "Ruta alternativa marcada en rojo.", Toast.LENGTH_SHORT).show();
                         })
                         .setNegativeButton("Cancelar", null)
@@ -365,16 +448,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-    private void trazarRutaEnMapa(List<GeoPoint> camino, int color) {
-        Polyline polyline = new Polyline();
-        polyline.setPoints(camino);
-        polyline.getOutlinePaint().setColor(color); // Establecer el color de la ruta
-        mapView.getOverlays().add(polyline);
-        mapView.invalidate(); // Redibujar el mapa
-    }
 
 
 
@@ -432,6 +505,34 @@ public class MainActivity extends AppCompatActivity {
         // Calcular tiempo en horas y convertir a minutos
         return (distanciaKm / velocidadKmH) * 60; // Tiempo en minutos
     }
+
+    private void trazarRutaAnimada(List<GeoPoint> puntos, int color) {
+        // Crear una polilínea para la ruta
+        Polyline polyline = new Polyline();
+        polyline.getOutlinePaint().setColor(color); // Color del camino
+        polyline.getOutlinePaint().setStrokeWidth(10f); // Ancho de la línea
+
+        // Lista para los puntos que se van añadiendo progresivamente
+        List<GeoPoint> puntosAnimados = new ArrayList<>();
+
+        // Handler para animar
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        // Velocidad de la animación (en milisegundos)
+        int delay = 50;
+
+        // Animar punto a punto
+        for (int i = 0; i < puntos.size(); i++) {
+            int finalI = i;
+            handler.postDelayed(() -> {
+                puntosAnimados.add(puntos.get(finalI)); // Añadir el siguiente punto
+                polyline.setPoints(puntosAnimados); // Actualizar la polilínea
+                mapView.getOverlays().add(polyline); // Añadir la polilínea al mapa
+                mapView.invalidate(); // Redibujar el mapa
+            }, delay * i); // Incrementar el tiempo de retraso para cada punto
+        }
+    }
+
 
 
 

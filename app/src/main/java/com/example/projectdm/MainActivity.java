@@ -111,9 +111,83 @@ public class MainActivity extends AppCompatActivity {
         // Generar las aristas entre los nodos
         generarAristas();
 
+        // Muestra las obstrucciones en el mapa
+        agregarObstrucciones();
 
 
     }
+
+
+    private List<Obstruccion> obstrucciones = Arrays.asList(
+            new Obstruccion("TRAFICO FUERTE", new GeoPoint(-2.155259, -79.892787), "Tráfico", "Embotellamiento de Trafico"),
+            new Obstruccion("CHOQUE GRAVE", new GeoPoint(-2.147711, -79.964547), "Obstrucción", "Choque frontal")
+    );
+
+    private void agregarObstrucciones() {
+        for (Obstruccion obstruccion : obstrucciones) {
+            Marker marker = new Marker(mapView);
+            marker.setPosition(obstruccion.getUbicacion());
+            marker.setTitle(obstruccion.getNombreCalle());
+            marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_obstruction, null), 60, 60)); // Ícono personalizado
+            marker.setOnMarkerClickListener((m, map) -> {
+                mostrarDetalleObstruccion(obstruccion); // Mostrar detalles al seleccionar
+                return true; // Evitar el comportamiento predeterminado
+            });
+            mapView.getOverlays().add(marker); // Agregar marcador al mapa
+        }
+
+        mapView.invalidate(); // Refrescar el mapa
+    }
+
+
+    private void mostrarDetalleObstruccion(Obstruccion obstruccion) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Detalle de la Obstrucción")
+                .setMessage("Calle: " + obstruccion.getNombreCalle() +
+                        "\nTipo: " + obstruccion.getTipo() +
+                        "\nDescripción: " + obstruccion.getDescripcion())
+                .setPositiveButton("Entendido", null)
+                .show();
+    }
+
+
+    private void verificarObstruccionesEnRuta(List<GeoPoint> ruta) {
+        boolean hayObstruccion = false;
+        StringBuilder mensaje = new StringBuilder("La ruta pasa por las siguientes obstrucciones:\n");
+
+        for (GeoPoint punto : ruta) {
+            for (Obstruccion obstruccion : obstrucciones) {
+                if (punto.equals(obstruccion.getUbicacion())) {
+                    hayObstruccion = true;
+                    mensaje.append("- ").append(obstruccion.getNombreCalle())
+                            .append(": ").append(obstruccion.getDescripcion()).append("\n");
+                }
+            }
+        }
+
+        if (hayObstruccion) {
+            // Mostrar notificación y buscar nueva ruta
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Obstrucciones en la Ruta")
+                    .setMessage(mensaje.toString())
+                    .setPositiveButton("Buscar Ruta Alternativa", (dialog, which) -> {
+                        buscarRutaAlternativa();
+                    })
+                    .setNegativeButton("Aceptar", null)
+                    .show();
+        }
+    }
+
+
+    private void buscarRutaAlternativa() {
+        Toast.makeText(this, "Buscando ruta alternativa...", Toast.LENGTH_SHORT).show();
+        // Implementa la lógica para buscar una nueva ruta
+    }
+
+
+
+
+
 
 
 
@@ -366,6 +440,7 @@ public class MainActivity extends AppCompatActivity {
             protected void onPostExecute(String result) {
                 if (result != null) {
                     mostrarRutaMasCorta(result); // Mostrar directamente la ruta más corta
+
                 }
             }
         }.execute();
@@ -386,6 +461,11 @@ public class MainActivity extends AppCompatActivity {
 
                 // Mostrar la ruta más corta de forma animada
                 trazarRutaAnimada(camino1, Color.BLUE);
+
+                // Verificar si la ruta pasa por obstrucciones
+                verificarObstruccionesEnRuta(camino1);
+
+
 
                 // Calcular el tiempo estimado
                 double tiempoRuta1 = calcularTiempo(distanciaKm1);

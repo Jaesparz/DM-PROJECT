@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">ProjectDM</string>
+    <string name="menu_principal" />
+    <string name="seleccionar_modo" />
+    <string name="modo_viajero" />
+    <string name="modo_transportista" />
+    <string name="image2_desc" />
+    <string name="image1_desc" />
+    <string name="info_activity" />
+    <string name="minigame_label" />
 </resources>

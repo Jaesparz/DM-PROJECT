@@ -1,0 +1,63 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título del blog -->
+
+        <!-- Imagen demostrativa -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="Algoritmo De Dijkstra"
+            android:textColor="#000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Párrafo de información -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:contentDescription="@string/image1_desc"
+            android:scaleType="centerCrop"
+            android:src="@drawable/dijkstra" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Este es el contenido del primer párrafo del blog. Aquí puedes escribir la información que deseas compartir con tus usuarios. Puedes agregar todo el texto necesario."
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:textColor="#333" />
+
+        <!-- Imagen adicional -->
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:src="@drawable/osmdroid"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/image2_desc" />
+
+        <!-- Segundo párrafo -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Este es otro párrafo para explicar más detalles o mostrar información adicional. Puedes incluir ejemplos, descripciones o cualquier otra cosa relevante."
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:textColor="#333" />
+
+    </LinearLayout>
+</ScrollView>

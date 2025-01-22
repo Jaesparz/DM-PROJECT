@@ -26,9 +26,9 @@
 
         <!-- Actividad principal -->
         <activity
-            android:name=".MainActivity"
+            android:name=".MainMenuActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="@string/menu_principal"
             android:theme="@style/Theme.ProjectDM">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +36,48 @@
             </intent-filter>
         </activity>
 
+        <!-- Seleccionar Modo -->
+        <activity
+            android:name=".ModeSelectionActivity"
+            android:exported="true"
+            android:label="@string/seleccionar_modo"
+            android:theme="@style/Theme.ProjectDM">
+        </activity>
+
+        <!-- Modo Viajero -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/modo_viajero"
+            android:theme="@style/Theme.ProjectDM">
+        </activity>
+
+        <!-- Modo Transportista -->
+<!--        <activity-->
+<!--            android:name=".TransportActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="@string/modo_transportista"-->
+<!--            android:theme="@style/Theme.ProjectDM">-->
+<!--        </activity>-->
         <!-- Configuración específica de OSMDroid (opcional si deseas usar almacenamiento) -->
+
+        <!-- InfoActivity -->
+        <activity
+            android:name=".InfoAlgorithm"
+            android:exported="true"
+            android:label="@string/info_activity"
+            android:theme="@style/Theme.ProjectDM">
+        </activity>
+
+        <!-- Minijuego -->
+        <activity
+            android:name=".Minigame2DActivity"
+            android:exported="true"
+            android:label="@string/minigame_label"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.ProjectDM">
+        </activity>
+
         <meta-data
             android:name="osmdroid.basePath"
             android:value="osmdroid" />

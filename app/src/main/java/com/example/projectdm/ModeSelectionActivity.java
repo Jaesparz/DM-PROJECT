@@ -26,12 +26,12 @@ public class ModeSelectionActivity extends AppCompatActivity {
         });
 
 
-        //Boton transportista
+//        Boton transportista
 
-//        btnTransportista.setOnClickListener(v -> {
-//            Intent intent = new Intent(ModeSelectionActivity.this, TransportistaActivity.class);
-//            startActivity(intent);
-//        });
+        btnTransportista.setOnClickListener(v -> {
+            Intent intent = new Intent(ModeSelectionActivity.this, TransportistaActivity.class);
+            startActivity(intent);
+        });
 
 
         //Minijuego

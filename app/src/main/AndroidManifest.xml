@@ -52,14 +52,14 @@
             android:theme="@style/Theme.ProjectDM">
         </activity>
 
-        <!-- Modo Transportista -->
-<!--        <activity-->
-<!--            android:name=".TransportActivity"-->
-<!--            android:exported="true"-->
-<!--            android:label="@string/modo_transportista"-->
-<!--            android:theme="@style/Theme.ProjectDM">-->
-<!--        </activity>-->
-        <!-- Configuración específica de OSMDroid (opcional si deseas usar almacenamiento) -->
+<!--         Modo Transportista -->
+        <activity
+            android:name=".TransportistaActivity"
+            android:exported="true"
+            android:label="@string/modo_transportista"
+            android:theme="@style/Theme.ProjectDM">
+        </activity>
+
 
         <!-- InfoActivity -->
         <activity

@@ -16,6 +16,8 @@ Este proyecto presenta la implementación del **algoritmo de Dijkstra** en el de
   - Visualizar el grafo y las distancias entre sus nodos (MARCADORES-LUGARES).
   - Obtener el camino más corto y su distancia,tiempo total.
 - Uso de estructuras de datos eficientes para el manejo de grafos.
+- Uso de asistentes virtuales como polito y optimus prime
+- Minijuego interactivo incluido
 
 ---
 
@@ -31,11 +33,6 @@ Este proyecto presenta la implementación del **algoritmo de Dijkstra** en el de
 
 ---
 
-## **Capturas de Pantalla**
-
-
-
----
 
 ## **Integrantes del Grupo**
 
@@ -47,5 +44,3 @@ Este proyecto presenta la implementación del **algoritmo de Dijkstra** en el de
 ---
 
 
-## **Agradecimientos**
-Agradecemos a nuestros profesores y compañeros por el apoyo brindado durante el desarrollo de este proyecto.

@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
-            android:text="Algoritmo De Dijkstra"
+            android:text="            Algoritmo De Dijkstra"
             android:textColor="#000"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -33,7 +33,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Este es el contenido del primer párrafo del blog. Aquí puedes escribir la información que deseas compartir con tus usuarios. Puedes agregar todo el texto necesario."
+            android:text="El algoritmo de Dijkstra es un método para encontrar el camino más corto entre nodos en un grafo con pesos
+    no negativos. Funciona asignando distancias iniciales infinitas a todos los nodos, excepto el de inicio (0),
+    y explorando iterativamente los vecinos con el menor costo hasta alcanzar el destino."
             android:textSize="16sp"
             android:lineSpacingExtra="4dp"
             android:paddingTop="8dp"
@@ -52,7 +54,9 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Este es otro párrafo para explicar más detalles o mostrar información adicional. Puedes incluir ejemplos, descripciones o cualquier otra cosa relevante."
+            android:text="En la app, se implementó en CityGraph para calcular rutas óptimas entre los puntos turísticos o demandas del transportista. Además, OSM (OpenStreetMap)
+    y OSRM (Open Source Routing Machine) se usaron para obtener rutas reales en el mapa, proporcionando datos de navegación basados
+    en carreteras reales."
             android:textSize="16sp"
             android:lineSpacingExtra="4dp"
             android:paddingTop="8dp"
@@ -61,3 +65,5 @@
 
     </LinearLayout>
 </ScrollView>
+
+

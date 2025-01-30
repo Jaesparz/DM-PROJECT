@@ -9,8 +9,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -73,6 +79,12 @@ public class TransportistaActivity extends AppCompatActivity {
         // Generar demandas dinámicas
         generarDemandas();
 
+        mostrarBienvenida(); // Llamada en onCreate() para mostrar el saludo inicial
+
+
+
+
+
         FloatingActionButton btnSetStartNode = findViewById(R.id.btnSetStartNode);
         btnSetStartNode.setOnClickListener(v -> {
             Toast.makeText(this, "Toque el mapa para establecer el nodo inicial.", Toast.LENGTH_SHORT).show();
@@ -105,36 +117,42 @@ public class TransportistaActivity extends AppCompatActivity {
         btnAssistant.setOnClickListener(v -> mostrarSugerenciaDeAsistente());
 
 
+
         // Botón para seleccionar una demanda y calcular la ruta
         FloatingActionButton btnSelectDemand = findViewById(R.id.btnSelectDemand);
-        btnSelectDemand.setOnClickListener(v -> {
-            if (nodoInicial == null) {
-                Toast.makeText(this, "Primero selecciona tu ubicación actual.", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            // Construir la lista de nombres de demandas con la distancia desde el camión
-            String[] nombresDemandas = new String[demandas.size()];
-            for (int i = 0; i < demandas.size(); i++) {
-                Demanda demanda = demandas.get(i);
-                double distancia = calcularDistancia(nodoInicial, demanda.getUbicacion());
-                nombresDemandas[i] = demanda.getDescripcion() + " - A " + String.format("%.1f", distancia) + " km";
-            }
+        btnSelectDemand.setOnClickListener(v -> mostrarListaDemandas());
 
-            // Mostrar las demandas en un diálogo
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Demandas disponibles");
-
-            builder.setItems(nombresDemandas, (dialog, which) -> {
-                Demanda demandaSeleccionada = demandas.get(which);
-
-                // Calcular la ruta más corta al destino seleccionado
-                calcularRutaCorta(demandaSeleccionada);
-            });
-
-            builder.setNegativeButton("Cancelar", null);
-            builder.show();
-        });
+//        btnSelectDemand.setOnClickListener(v -> {
+//
+//
+//            if (nodoInicial == null) {
+//                Toast.makeText(this, "Primero selecciona tu ubicación actual.", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//            // Construir la lista de nombres de demandas con la distancia desde el camión
+//            String[] nombresDemandas = new String[demandas.size()];
+//            for (int i = 0; i < demandas.size(); i++) {
+//                Demanda demanda = demandas.get(i);
+//                double distancia = calcularDistancia(nodoInicial, demanda.getUbicacion());
+//                nombresDemandas[i] = demanda.getDescripcion() + " - A " + String.format("%.1f", distancia) + " km";
+//            }
+//
+//            // Mostrar las demandas en un diálogo
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("Demandas disponibles");
+//
+//            builder.setItems(nombresDemandas, (dialog, which) -> {
+//                Demanda demandaSeleccionada = demandas.get(which);
+//
+//                // Calcular la ruta más corta al destino seleccionado
+//                calcularRutaCorta(demandaSeleccionada);
+//            });
+//
+//            builder.setNegativeButton("Cancelar", null);
+//            builder.show();
+//        });
 
     }
 
@@ -171,36 +189,47 @@ public class TransportistaActivity extends AppCompatActivity {
             return;
         }
 
-        // Encuentra la mejor demanda basada en la relación beneficio/distancia
         Demanda mejorDemanda = null;
         double mejorRelacion = Double.MIN_VALUE;
+        double distanciaSeleccionada = 0;
 
         for (Demanda demanda : demandas) {
             double distancia = calcularDistancia(nodoInicial, demanda.getUbicacion());
-            double relacion = demanda.getBeneficio() / distancia; // Relación beneficio/distancia
+            double relacion = demanda.getBeneficio() / distancia;
 
             if (relacion > mejorRelacion) {
                 mejorRelacion = relacion;
                 mejorDemanda = demanda;
+                distanciaSeleccionada = distancia; // Guardamos la distancia de la mejor opción
             }
         }
 
         if (mejorDemanda != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Asistente: Mejor Opción");
+            LayoutInflater inflater = getLayoutInflater();
+            View view = inflater.inflate(R.layout.dialog_assistant, null);
+
+            TextView mensaje = view.findViewById(R.id.textOptimus);
+            ImageView optimusImage = view.findViewById(R.id.imageOptimus);
+            optimusImage.setImageResource(R.drawable.optimus_sugerencia); // Imagen específica del asistente
+
+            // ✅ Ahora el mensaje incluye la distancia de la demanda seleccionada
+            mensaje.setText("Mi rey, esta te conviene tomar:\n*" + mejorDemanda.getDescripcion() + "*.\n\n" +
+                    "Está a *" + String.format("%.1f", distanciaSeleccionada) + " km* del camión.\n" +
+                    "Te ahorrará gasolina y generarás más ingresos a posteriori.");
+
             Demanda finalMejorDemanda = mejorDemanda;
-            builder.setMessage("Demanda sugerida: " + mejorDemanda.getDescripcion() +
-                            "\nBeneficio: $" + mejorDemanda.getBeneficio() +
-                            "\nDistancia: " + String.format("%.2f", calcularDistancia(nodoInicial, mejorDemanda.getUbicacion())) + " km")
-                    .setPositiveButton("Aceptar", (dialog, which) -> {
-                        calcularRutaCorta(finalMejorDemanda); // Calcular y mostrar la ruta al aceptar
-                    })
+            builder.setView(view)
+                    .setPositiveButton("Aceptar", (dialog, which) -> calcularRutaCorta(finalMejorDemanda))
                     .setNegativeButton("Rechazar", null)
                     .show();
         } else {
             Toast.makeText(this, "No se encontraron demandas disponibles.", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
 
     private double calcularDistancia(GeoPoint punto1, GeoPoint punto2) {
         double lat1 = Math.toRadians(punto1.getLatitude());
@@ -373,5 +402,49 @@ public class TransportistaActivity extends AppCompatActivity {
 
 
     }
+    private void mostrarBienvenida() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_welcome, null);
+
+        builder.setView(view);
+        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    private void mostrarListaDemandas() {
+        if (nodoInicial == null) {
+            Toast.makeText(this, "Primero selecciona tu ubicación actual.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialog_demand_list, null);
+
+        ListView listView = view.findViewById(R.id.listViewDemandas);
+        ImageView optimusImage = view.findViewById(R.id.imageOptimus);
+        optimusImage.setImageResource(R.drawable.optimus_prime); // Imagen de Optimus en la lista
+
+        String[] nombresDemandas = new String[demandas.size()];
+        for (int i = 0; i < demandas.size(); i++) {
+            Demanda demanda = demandas.get(i);
+            double distancia = calcularDistancia(nodoInicial, demanda.getUbicacion());
+            nombresDemandas[i] = demanda.getDescripcion() + " - A " + String.format("%.1f", distancia) + " km";
+        }
+
+        listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, nombresDemandas));
+        listView.setOnItemClickListener((parent, view1, position, id) -> {
+            Demanda demandaSeleccionada = demandas.get(position);
+            calcularRutaCorta(demandaSeleccionada);
+        });
+
+        builder.setView(view);
+        builder.setNegativeButton("Cancelar", null);
+        builder.show();
+    }
+
+
 }
 

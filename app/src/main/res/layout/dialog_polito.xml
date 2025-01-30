@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+
+    <!-- Imagen de Polito -->
+    <ImageView
+        android:id="@+id/imageViewPolito"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/polito"
+        android:contentDescription="Polito" />
+
+    <!-- Texto del mensaje -->
+    <TextView
+        android:id="@+id/textViewMensaje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mensaje de Polito"
+        android:textSize="16sp"
+        android:textAlignment="center"
+        android:padding="8dp" />
+
+    <!-- Botones de acción -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+        <Button
+            android:id="@+id/buttonCancelar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/buttonAceptar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aceptar" />
+
+        <Button
+            android:id="@+id/buttonSiguiente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Siguiente"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+</LinearLayout>

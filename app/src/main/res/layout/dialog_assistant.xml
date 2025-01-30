@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/imageOptimus"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/optimus_sugerencia"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/textOptimus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mi rey, esta te conviene tomar. Te ahorrará gasolina y generarás más ingresos a posteriori."
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp" />
+</LinearLayout>

@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <ImageView
+        android:id="@+id/imageOptimus"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/optimus_prime"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mi rey, ¿A dónde iremos?"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:layout_marginTop="10dp" />
+
+    <ListView
+        android:id="@+id/listViewDemandas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
+</LinearLayout>

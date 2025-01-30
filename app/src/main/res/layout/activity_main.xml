@@ -7,6 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Contenedor del mapa -->
+    <FrameLayout
+        android:id="@+id/map_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Botón para alternar la vista del grafo -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnToggleGraphView"
         android:layout_width="wrap_content"
@@ -18,11 +25,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
 
-    <FrameLayout
-        android:id="@+id/map_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <!-- Botón para seleccionar nodo de inicio personalizado -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnNodoPersonalizado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_marker"
+        android:contentDescription="Seleccionar Nodo Personalizado"
+        app:layout_constraintBottom_toTopOf="@id/btnToggleGraphView"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints" />
 
+    <!-- Botón para que Polito recomiende un lugar -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnRecomendarLugar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/polito_guinando"
+        android:contentDescription="Recomendar Lugar"
+        app:layout_constraintBottom_toTopOf="@id/btnNodoPersonalizado"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints" />
 
 
 

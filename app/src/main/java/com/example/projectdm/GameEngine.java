@@ -133,20 +133,46 @@ public class GameEngine extends Thread {
 
         } else if (level == 2) {
             // Configuración del Nivel 2
-            city.addNode(200, 100, "Nodo A");
-            city.addNode(500, 200, "Nodo B");
-            city.addNode(700, 500, "Nodo C");
-            city.addNode(900, 300, "Nodo D");
-            city.addNode(1100, 600, "Nodo E");
+            city.addNode(255, 250, "Nodo A");
+            city.addNode(450, 430, "Nodo B");
+            city.addNode(450, 720, "Nodo C");
+            city.addNode(720, 840, "Nodo D");
+            city.addNode(680, 570, "Nodo E");
+            city.addNode(840, 310, "Nodo F");
+            city.addNode(1015, 480, "Nodo G");
+            city.addNode(1200, 770, "Nodo H");
+            city.addNode(1200, 535, "Nodo I");
+            city.addNode(1300, 257, "Nodo J");
+            city.addNode(1500, 515, "Nodo K");
+            city.addNode(1000, 745, "Nodo L");
+            city.addNode(1380, 170, "Nodo M");
+            city.addNode(1695, 300, "Nodo N");
+            city.addNode(1930, 345, "Nodo Ñ");
 
-            city.addEdge(city.nodes.get(0), city.nodes.get(1), 40);
-            city.addEdge(city.nodes.get(1), city.nodes.get(2), 35);
-            city.addEdge(city.nodes.get(2), city.nodes.get(3), 25);
-            city.addEdge(city.nodes.get(3), city.nodes.get(4), 30);
-            city.addEdge(city.nodes.get(0), city.nodes.get(3), 50);
+            // Conexión de las aristas con distancias estimadas
 
-            initialNode = city.nodes.get(0); // Nodo inicial
-            endNode = city.nodes.get(4);     // Nodo final
+            city.addEdge(city.nodes.get(0), city.nodes.get(1), 40); // A -> B
+            city.addEdge(city.nodes.get(1), city.nodes.get(2), 35); // B -> C
+            city.addEdge(city.nodes.get(2), city.nodes.get(3), 30); // C -> D
+            city.addEdge(city.nodes.get(3), city.nodes.get(4), 40); // D -> E
+            city.addEdge(city.nodes.get(4), city.nodes.get(1), 25); // E -> B
+            city.addEdge(city.nodes.get(4), city.nodes.get(5), 30); // E -> F
+            city.addEdge(city.nodes.get(5), city.nodes.get(6), 35); // F -> G
+            city.addEdge(city.nodes.get(6), city.nodes.get(7), 50); // G -> H
+            city.addEdge(city.nodes.get(7), city.nodes.get(8), 45); // H -> I
+            city.addEdge(city.nodes.get(8), city.nodes.get(9), 30); // I -> J
+            city.addEdge(city.nodes.get(9), city.nodes.get(10), 40); // J -> K
+            city.addEdge(city.nodes.get(10), city.nodes.get(11), 55); // K -> L
+            city.addEdge(city.nodes.get(11), city.nodes.get(3), 50); // L -> D
+            city.addEdge(city.nodes.get(6), city.nodes.get(8), 30); // G -> I
+            city.addEdge(city.nodes.get(9), city.nodes.get(12), 45); // J -> M
+            city.addEdge(city.nodes.get(12), city.nodes.get(13), 50); // M -> N
+            city.addEdge(city.nodes.get(13), city.nodes.get(14), 60); // N -> Ñ
+            city.addEdge(city.nodes.get(7), city.nodes.get(14), 65); // H -> Ñ
+
+            // Nodo inicial y final del Nivel 2
+            initialNode = city.nodes.get(0); // Nodo A
+            endNode = city.nodes.get(14);
         }
 
         // Posicionar al personaje en el nodo inicial

@@ -1,5 +1,6 @@
 package com.example.projectdm;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -13,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -25,6 +28,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.osmdroid.views.Projection;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
@@ -60,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean enVistaDeGrafo = false; // Estado para alternar vistas
     private List<LugarTuristico> lugares; // Lugares existentes
     private List<Polyline> aristasGrafo = new ArrayList<>();
+    private LugarTuristico nodoPersonalizado; // Ahora almacenará un LugarTuristico
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +119,25 @@ public class MainActivity extends AppCompatActivity {
 
         // Muestra las obstrucciones en el mapa
         agregarObstrucciones();
+
+
+        //Bienvenida con polito
+
+        mostrarBienvenidaConPolito();
+
+
+        FloatingActionButton btnSetCustomStart = findViewById(R.id.btnNodoPersonalizado);
+        btnSetCustomStart.setOnClickListener(v -> mostrarDialogoNodoPersonalizado());
+
+
+        FloatingActionButton btnRecomendaciones = findViewById(R.id.btnRecomendarLugar);
+        btnRecomendaciones.setOnClickListener(v -> mostrarRecomendacionesPolito());
+
+
+        // 🔹 Deshabilitar la actualización automática de la posición de los nodos
+        mapView.setTilesScaledToDpi(false);
+        mapView.setFlingEnabled(false);
+
 
 
     }
@@ -353,21 +378,27 @@ public class MainActivity extends AppCompatActivity {
         );
     }
     private void agregarMarcadores() {
-
         for (LugarTuristico lugar : lugares) {
             Marker marker = new Marker(mapView);
             marker.setPosition(lugar.getUbicacion());
             marker.setTitle(lugar.getNombre());
-            marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_custom_marker, null), 60, 60)); // Ícono personalizado
+
+            // Usamos un icono personalizado
+            marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_custom_marker, null), 60, 60));
+
+
             marker.setOnMarkerClickListener((m, map) -> {
-                mostrarOpciones(lugar);  // Llamar al método para seleccionar partida o destino
-                return true;  // Evitar el comportamiento predeterminado
+                mapView.getController().setCenter(m.getPosition()); // Bloquear en la posición real
+                mostrarOpciones(lugar);
+                return true;
             });
-            mapView.getOverlays().add(marker);  // Agregar marcador al mapa
+
+            mapView.getOverlays().add(marker);
         }
 
-        mapView.invalidate();  // Refrescar el mapa
+        mapView.invalidate();  // Redibujar el mapa
     }
+
 
     private void mostrarOpciones(LugarTuristico lugar) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -616,6 +647,245 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    //POLITO
+
+
+    private void mostrarBienvenidaConPolito() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_polito, null);
+
+        ImageView imageViewPolito = dialogView.findViewById(R.id.imageViewPolito);
+        TextView textViewMensaje = dialogView.findViewById(R.id.textViewMensaje);
+        Button buttonAceptar = dialogView.findViewById(R.id.buttonAceptar);
+
+        imageViewPolito.setImageResource(R.drawable.polito);
+        textViewMensaje.setText("Hola mi querido politénico, espero tengas un buen día y estés AP.");
+
+        AlertDialog dialog = builder.setView(dialogView).create();
+
+        buttonAceptar.setOnClickListener(v -> {
+            textViewMensaje.setText("Este mapa nos servirá para encontrar el camino más corto entre los lugares marcados en el mapa. "
+                    + "Al seleccionar un lugar podrás establecerlo como punto de partida o destino.");
+            buttonAceptar.setText("Siguiente");
+
+            buttonAceptar.setOnClickListener(v2 -> {
+                textViewMensaje.setText("Cuando selecciones una partida y un destino, se ejecutará un algoritmo para llevarte por el camino más corto.");
+                buttonAceptar.setText("Siguiente");
+
+                buttonAceptar.setOnClickListener(v3 -> {
+                    textViewMensaje.setText("Estaré aquí por si me necesitas.");
+                    buttonAceptar.setText("OK");
+
+                    buttonAceptar.setOnClickListener(v4 -> dialog.dismiss()); // Finaliza el flujo de mensajes
+                });
+            });
+        });
+
+        dialog.show();
+    }
+
+
+
+
+    //NODO INCIAL DEL USUARIO
+
+    private void mostrarDialogoNodoPersonalizado() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Crear una vista personalizada para incluir la imagen de Polito
+        View customView = getLayoutInflater().inflate(R.layout.dialog_polito, null);
+        ImageView imageView = customView.findViewById(R.id.imageViewPolito);
+        imageView.setImageResource(R.drawable.polito_guinando); // Imagen de Polito preguntando
+
+        TextView textView = customView.findViewById(R.id.textViewMensaje);
+        textView.setText("¿Deseas un lugar inicial personalizado?");
+
+        builder.setView(customView)
+                .setPositiveButton("Sí", (dialog, which) -> activarSeleccionPersonalizada())
+                .setNegativeButton("No", null)
+                .show();
+    }
+
+    private void agregarMarcadorNodoPersonalizado(GeoPoint punto) {
+        Marker marker = new Marker(mapView);
+        marker.setPosition(punto);
+        marker.setTitle("Punto Personalizado");
+
+        // ✅ ICONO DIFERENTE para el nodo personalizado
+        marker.setIcon(resizeIcon(getResources().getDrawable(R.drawable.ic_backpack, null), 70, 70));
+
+        // 🔹 Bloquea el movimiento del nodo personalizado tras zoom o ajustes
+        marker.setOnMarkerClickListener((m, map) -> {
+            mapView.getController().setCenter(m.getPosition()); // Mantiene la posición exacta
+            return true;
+        });
+
+        mapView.getOverlays().add(marker);
+        mapView.invalidate();
+    }
+
+
+
+
+    private void activarSeleccionPersonalizada() {
+        Toast.makeText(this, "Toca el mapa para elegir el punto de inicio.", Toast.LENGTH_SHORT).show();
+
+        mapView.setOnTouchListener((view, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                Projection projection = mapView.getProjection();
+                GeoPoint punto = (GeoPoint) projection.fromPixels((int) event.getX(), (int) event.getY());
+
+                // Crear un LugarTuristico con icono diferente
+                nodoPersonalizado = new LugarTuristico("Punto Personalizado", punto, "Ubicación personalizada", "file");
+
+                // ✅ Marcarlo automáticamente como punto de partida
+                puntoPartida = nodoPersonalizado;
+
+                // Agregar marcador con nuevo icono
+                agregarMarcadorNodoPersonalizado(punto);
+
+                mapView.setOnTouchListener(null);
+                Toast.makeText(this, "Punto de partida personalizado seleccionado.", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        });
+    }
+
+
+    // RECOMENDACIONES
+
+    private void mostrarRecomendacionesPolito() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Configurar imagen de Polito más grande
+        ImageView imageView = new ImageView(this);
+        imageView.setImageResource(R.drawable.polito_recomend);
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        imageView.setPadding(30, 30, 30, 30);
+
+        builder.setTitle("Polito te recomienda")
+                .setView(imageView)
+                .setMessage("Te recomiendo visitar estos lugares en ESPOL.")
+                .setPositiveButton("Ver Opciones", (dialog, which) -> mostrarListaRecomendaciones())
+                .show();
+    }
+
+
+    private void mostrarListaRecomendaciones() {
+        if (puntoPartida == null && nodoPersonalizado == null) {
+            Toast.makeText(this, "Selecciona un punto de partida primero.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        LugarTuristico puntoInicio = nodoPersonalizado != null ? nodoPersonalizado : puntoPartida;
+
+        String[] lugaresRecomendados = {
+                "Comedor FADCOM", "Sweet & Coffe", "LA VACA", "Parque AJÁ",
+                "FRESH FOOD", "LAGO ESPOL (VISTA)", "COMEDOR CARPA ROJA", "Frutanga","Piscina"
+        };
+
+        List<String> listaLugares = new ArrayList<>(); // Usamos una lista dinámica
+
+        for (String nombreLugar : lugaresRecomendados) {
+            LugarTuristico destino = obtenerLugarPorNombre(nombreLugar);
+            if (destino != null) { // 🔥 EVITAMOS EL ERROR DE NULL
+                double distanciaKm = calcularDistancia(puntoInicio.getUbicacion(), destino.getUbicacion());
+                listaLugares.add(nombreLugar + " (" + String.format("%.2f", distanciaKm) + " km)");
+            }
+        }
+
+        if (listaLugares.isEmpty()) {
+            Toast.makeText(this, "No se encontraron lugares recomendados.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] lugaresConDistancia = listaLugares.toArray(new String[0]);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        // Configurar imagen de Polito en la lista
+        ImageView imageView = new ImageView(this);
+        imageView.setImageResource(R.drawable.polito_guinando);
+        imageView.setAdjustViewBounds(true);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        imageView.setPadding(30, 30, 30, 30);
+
+        builder.setTitle("Polito - Lugares Recomendados")
+                .setView(imageView)
+                .setItems(lugaresConDistancia, (dialog, which) -> seleccionarLugarDestino(lugaresRecomendados[which]))
+                .show();
+    }
+
+
+    private void seleccionarLugarDestino(String lugarSeleccionado) {
+        @SuppressLint({"NewApi", "LocalSuppress"})
+        LugarTuristico destino = lugares.stream()
+                .filter(lugar -> lugar.getNombre().equals(lugarSeleccionado))
+                .findFirst()
+                .orElse(null);
+
+        if (destino != null) {
+            if (nodoPersonalizado != null) {
+                puntoPartida = nodoPersonalizado; // 🔹 Si hay un nodo personalizado, se usa como punto de partida
+            } else if (puntoPartida == null) {
+                Toast.makeText(this, "Selecciona un punto de partida primero.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            puntoDestino = destino; // 🔹 Se asigna el destino seleccionado
+            obtenerRuta(puntoPartida, puntoDestino); // 🔹 Se usa `obtenerRuta` con `LugarTuristico`, no con `GeoPoint`
+        }
+    }
+    @SuppressLint("NewApi")
+    private LugarTuristico obtenerLugarPorNombre(String nombre) {
+        return lugares.stream()
+                .filter(lugar -> lugar.getNombre().equals(nombre))
+                .findFirst()
+                .orElse(null);
+    }
+    private double calcularDistancia(GeoPoint punto1, GeoPoint punto2) {
+        double lat1 = punto1.getLatitude();
+        double lon1 = punto1.getLongitude();
+        double lat2 = punto2.getLatitude();
+        double lon2 = punto2.getLongitude();
+
+        double radioTierra = 6371.0; // Radio de la Tierra en km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return radioTierra * c;
+    }
+
+
+
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
